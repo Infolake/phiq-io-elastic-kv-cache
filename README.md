@@ -25,8 +25,7 @@ Developed by Dr. Guilherme de Camargo
 
 ## Camargo Constant
 
-> **Δ = φ + π = 4.759627**  
-> _(Golden Ratio + Pi: geometric harmony in entropy optimization)_
+> **Δ = φ + π = 4.759627** > _(Golden Ratio + Pi: geometric harmony in entropy optimization)_
 
 ---
 

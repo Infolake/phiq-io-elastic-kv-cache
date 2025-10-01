@@ -39,8 +39,8 @@ if(NOT DEFINED CUDA_ARCH)
         string(REPLACE "." "" CUDA_ARCH "${GPU_COMPUTE_CAP}")
         message(STATUS "Auto-detected CUDA architecture: SM ${CUDA_ARCH}")
     else()
-        # Build for multiple common architectures (fat binary)
-        set(CUDA_ARCH "61;75;80;86;89")  # Pascal, Turing, Ampere, Ada, Hopper
+        # Build for multiple common architectures (fat binary - Pascal through Hopper)
+        set(CUDA_ARCH "61;75;80;86;89;90")  # Pascal, Turing, Ampere, Ada, Hopper
         message(STATUS "No GPU detected, building for common architectures: ${CUDA_ARCH}")
     endif()
 else()
@@ -71,11 +71,8 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -march=native")
 endif()
 
-# CUDA compiler options with multi-architecture support
-set(CMAKE_CUDA_FLAGS_RELEASE "${CMAKE_CUDA_FLAGS_RELEASE} -O3 --maxrregcount=64")
-
-# Set CUDA architectures for the target
-set_property(TARGET elastic_kv_cli PROPERTY CUDA_ARCHITECTURES ${CUDA_ARCH})
+# CUDA compiler options with multi-architecture support (audit-ready)
+set(CMAKE_CUDA_FLAGS_RELEASE "${CMAKE_CUDA_FLAGS_RELEASE} -O3 --maxrregcount=64 -lineinfo")
 
 if(ENABLE_FAST_MATH)
     set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --use_fast_math")
@@ -101,17 +98,18 @@ add_executable(elastic_kv_cli
     src/elastic_kv_cli.cu
 )
 
+# Set CUDA architectures for the target (production multi-arch)
+set_target_properties(elastic_kv_cli PROPERTIES
+    CUDA_ARCHITECTURES "${CUDA_ARCH}"
+    CUDA_SEPARABLE_COMPILATION ON
+    CUDA_RESOLVE_DEVICE_SYMBOLS ON
+    OUTPUT_NAME "elastic_kv_cli"
+)
+
 # Link libraries
 target_link_libraries(elastic_kv_cli
     CUDA::cudart
     CUDA::cuda_driver
-)
-
-# Set properties
-set_target_properties(elastic_kv_cli PROPERTIES
-    CUDA_SEPARABLE_COMPILATION ON
-    CUDA_RESOLVE_DEVICE_SYMBOLS ON
-    OUTPUT_NAME "elastic_kv_cli"
 )
 
 # Installation

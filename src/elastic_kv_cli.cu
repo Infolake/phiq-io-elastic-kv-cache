@@ -48,7 +48,7 @@ struct ElasticKVConfig {
     int warmup_iterations = 20;
     int test_iterations = 200;
     int inner_loops = 64;          // repeats per timed sample (reduces jitter)
-    int truncate_percent = 0;      // trimmed mean percent (0=off)
+    int truncate_percent = 5;      // trimmed mean percent (default 5% for Colab/L4 stability)
 
     // Modes
     bool enable_cuda_graphs = true;
@@ -91,15 +91,17 @@ struct InferenceCycleResults {
 };
 
 // ----------------------------------------------------------------------------
-// Kernel (Pascal-optimized path with float4 vector loads)
-// This is a synthetic, bandwidth-leaning attention micro-kernel with compression.
+// Kernel (Pascal-optimized path with float4 vector loads + double-buffer)
+// Double-buffer eliminates race condition: always read from O_prev, write to O_out
+// This ensures audit-ready reproducibility and stable CV measurements
 // ----------------------------------------------------------------------------
 __global__ void __launch_bounds__(OPTIMAL_BLOCK_SIZE)
 elastic_attention_pascal_optimized(
     const float4* __restrict__ Q,
     const float4* __restrict__ K,
     const float4* __restrict__ V,
-    float4* __restrict__ O,
+    const float4* __restrict__ O_prev,  // Read buffer (previous iteration)
+    float4* __restrict__ O_out,         // Write buffer (current iteration)
     int seq_len, int num_heads, int head_dim_vec,
     int compression_factor,
     float scale_factor
@@ -121,12 +123,12 @@ elastic_attention_pascal_optimized(
     if ((seq_idx % compression_factor) == 0) {
         float dot = (q.x*k.x + q.y*k.y + q.z*k.z + q.w*k.w) * scale_factor;
         float s = expf(dot); // simplified softmax-like weight
-        O[tid] = make_float4(s*v.x, s*v.y, s*v.z, s*v.w);
+        O_out[tid] = make_float4(s*v.x, s*v.y, s*v.z, s*v.w);
     } else {
         int anchor = (seq_idx / compression_factor) * compression_factor;
         int anchor_tid = head_idx * per_head + anchor * head_dim_vec + dim_idx_vec;
-        float4 cached = O[anchor_tid];
-        O[tid] = make_float4(0.95f*cached.x, 0.95f*cached.y, 0.95f*cached.z, 0.95f*cached.w);
+        float4 cached = O_prev[anchor_tid];  // Always read from previous buffer
+        O_out[tid] = make_float4(0.95f*cached.x, 0.95f*cached.y, 0.95f*cached.z, 0.95f*cached.w);
     }
 }
 
@@ -152,40 +154,56 @@ public:
             printf("Error: head_dim must be divisible by %d (float4 vectorization).\n", VECTOR_WIDTH);
             exit(2);
         }
+        // Guard rails for audit-ready execution
+        if (config.seq_len <= 0 || config.heads <= 0 || config.head_dim <= 0) {
+            printf("Error: Invalid configuration (seq_len=%d, heads=%d, head_dim=%d)\n",
+                   config.seq_len, config.heads, config.head_dim);
+            exit(2);
+        }
         initialize();
         if (config.enable_cuda_graphs) {
-            buildGraphForCompression(1, graph_baseline, exec_baseline);
-            buildGraphForCompression(config.compression_ratio, graph_elastic, exec_elastic);
+            buildPingPongGraphs();
+            // Upload graphs to device to reduce first-launch jitter (audit-ready)
+            CUDA_CHECK(cudaGraphUpload(exec_baseline_p2o, 0));
+            CUDA_CHECK(cudaGraphUpload(exec_baseline_o2p, 0));
+            CUDA_CHECK(cudaGraphUpload(exec_elastic_p2o, 0));
+            CUDA_CHECK(cudaGraphUpload(exec_elastic_o2p, 0));
         }
     }
 
     ~ElasticKVBenchmark() {
-        if (exec_elastic) cudaGraphExecDestroy(exec_elastic);
-        if (graph_elastic) cudaGraphDestroy(graph_elastic);
-        if (exec_baseline) cudaGraphExecDestroy(exec_baseline);
-        if (graph_baseline) cudaGraphDestroy(graph_baseline);
+        // Cleanup ping-pong graphs
+        if (exec_elastic_o2p) cudaGraphExecDestroy(exec_elastic_o2p);
+        if (exec_elastic_p2o) cudaGraphExecDestroy(exec_elastic_p2o);
+        if (graph_elastic_o2p) cudaGraphDestroy(graph_elastic_o2p);
+        if (graph_elastic_p2o) cudaGraphDestroy(graph_elastic_p2o);
+        if (exec_baseline_o2p) cudaGraphExecDestroy(exec_baseline_o2p);
+        if (exec_baseline_p2o) cudaGraphExecDestroy(exec_baseline_p2o);
+        if (graph_baseline_o2p) cudaGraphDestroy(graph_baseline_o2p);
+        if (graph_baseline_p2o) cudaGraphDestroy(graph_baseline_p2o);
 
-        cudaFree(d_Q); cudaFree(d_K); cudaFree(d_V); cudaFree(d_O);
+        cudaFree(d_Q); cudaFree(d_K); cudaFree(d_V);
+        cudaFree(d_O_prev); cudaFree(d_O_out);
         cudaFree(d_mem_in); cudaFree(d_mem_out);
     }
 
     BenchmarkResults runMicrobench() {
         BenchmarkResults r{};
 
-        // Warm-up elastic
+        // Warm-up elastic with ping-pong
         for (int i = 0; i < config.warmup_iterations; ++i) {
-            (void) runPass(exec_elastic, config.compression_ratio);
+            (void) runPass(exec_elastic_p2o, exec_elastic_o2p, true);
         }
         CUDA_CHECK(cudaDeviceSynchronize());
 
-        // Timed elastic samples with inner loops
+        // Timed elastic samples with inner loops and ping-pong
         std::vector<float> samples; samples.reserve(config.test_iterations);
         for (int i = 0; i < config.test_iterations; ++i) {
-            float ms = runPass(exec_elastic, config.compression_ratio);
+            float ms = runPass(exec_elastic_p2o, exec_elastic_o2p, true);
             samples.push_back(ms);
         }
 
-        // Optional trimmed mean
+        // Optional trimmed mean (audit-ready: removes thermal outliers)
         auto stats = samples;
         if (config.truncate_percent > 0 && stats.size() > 20) {
             std::sort(stats.begin(), stats.end());
@@ -202,7 +220,7 @@ public:
         r.attention_time_std = (float)stdv;
         r.tokens_per_sec     = 1000.0f / r.attention_time_ms;
 
-        // Baseline tokens/s (compress=1)
+        // Baseline tokens/s (compress=1) using identical ping-pong pipeline
         r.baseline_tokens_per_sec = measureBaselineTokensPerSec();
 
         // BW and roofline
@@ -225,10 +243,10 @@ public:
         ir.measured = true;
         ir.decode_tokens = config.decode_tokens;
 
-        // Baseline sequence (compress=1)
-        float base_ms = timeSequential(exec_baseline, /*comp=*/1, config.decode_tokens);
-        // Elastic sequence (compress=config.compression_ratio)
-        float elas_ms = timeSequential(exec_elastic, config.compression_ratio, config.decode_tokens);
+        // Baseline sequence (compress=1) with ping-pong
+        float base_ms = timeSequential(exec_baseline_p2o, exec_baseline_o2p, config.decode_tokens);
+        // Elastic sequence (compress=config.compression_ratio) with ping-pong
+        float elas_ms = timeSequential(exec_elastic_p2o, exec_elastic_o2p, config.decode_tokens);
 
         ir.baseline_total_ms = base_ms;
         ir.elastic_total_ms  = elas_ms;
@@ -249,25 +267,36 @@ public:
     }
 
     static void printUsage(const char* prog) {
-        printf("Elastic KV Golden Ticket CLI - %s\n", "PHIQ IO GOE Nucleus");
+        printf("========================================================================\n");
+        printf("  ΦQ™ PHIQ.IO Elastic KV Cache - Golden Ticket Edition\n");
+        printf("  GOE Nucleus | Production-Grade LLM Inference Acceleration\n");
+        printf("  Author: Dr. Guilherme de Camargo | Camargo Constant: Δ = 4.759627\n");
+        printf("========================================================================\n\n");
         printf("Usage: %s [options]\n\n", prog);
         printf("Options:\n");
         printf("  --seq=N              Sequence length (default 1024)\n");
         printf("  --dim=D              Head dimension (default 64)\n");
         printf("  --heads=H            Number of heads (default 16)\n");
-        printf("  --compress=C         Compression ratio (default 2)\n");
+        printf("  --compress=C         Compression ratio (default 2, min 1)\n");
         printf("  --reps=R             Timed iterations (default 200)\n");
         printf("  --warmup=W           Warmup iterations (default 20)\n");
         printf("  --inner_loops=K      Passes per sample (default 64)\n");
-        printf("  --truncate=P         Trimmed mean percent (0..45, default 0)\n");
+        printf("  --truncate=P         Trimmed mean percent (0..45, default 5)\n");
         printf("  --paired-baseline    Measure baseline (C=1) and elastic in one run\n");
         printf("  --inference          Measure inference cycle (sequential decode)\n");
         printf("  --decode_tokens=T    Number of sequential steps (default 64)\n");
         printf("  --no-graphs          Disable CUDA Graphs\n");
         printf("  --json               JSON output (default true)\n");
+        printf("  --no-json            Human-readable output\n");
         printf("  --help               Show this help\n");
-        printf("\nExample:\n");
-        printf("  %s --seq=4096 --heads=32 --dim=128 --compress=4 --reps=120 --warmup=60 --inner_loops=64 --json --paired-baseline --inference --decode_tokens=128\n", prog);
+        printf("\nExamples:\n");
+        printf("  Basic benchmark:\n");
+        printf("    %s --seq=1024 --compress=2 --json\n\n", prog);
+        printf("  Production audit (paired baseline + inference cycle):\n");
+        printf("    %s --seq=4096 --heads=32 --dim=128 --compress=4 --reps=120 \\\n", prog);
+        printf("      --warmup=60 --inner_loops=64 --truncate=5 --json \\\n");
+        printf("      --paired-baseline --inference --decode_tokens=128\n\n");
+        printf("Contact: https://phiq.io | support@phiq.io\n");
     }
 
     static void outputJSON(const ElasticKVConfig& c, const BenchmarkResults& r, const InferenceCycleResults& ir) {
@@ -309,13 +338,16 @@ public:
 
 private:
     ElasticKVConfig config;
-    // Device buffers
-    float4 *d_Q=nullptr, *d_K=nullptr, *d_V=nullptr, *d_O=nullptr;
+    // Device buffers (double-buffer for race-free execution)
+    float4 *d_Q=nullptr, *d_K=nullptr, *d_V=nullptr;
+    float4 *d_O_prev=nullptr, *d_O_out=nullptr;  // Ping-pong buffers
     float4 *d_mem_in=nullptr, *d_mem_out=nullptr;
 
-    // Two graphs: baseline (compress=1) and elastic (compress=config.compression_ratio)
-    cudaGraph_t graph_baseline=nullptr, graph_elastic=nullptr;
-    cudaGraphExec_t exec_baseline=nullptr, exec_elastic=nullptr;
+    // Ping-pong graphs: G₀ (prev→out) and G₁ (out→prev) for baseline and elastic
+    cudaGraph_t graph_baseline_p2o=nullptr, graph_baseline_o2p=nullptr;
+    cudaGraph_t graph_elastic_p2o=nullptr, graph_elastic_o2p=nullptr;
+    cudaGraphExec_t exec_baseline_p2o=nullptr, exec_baseline_o2p=nullptr;
+    cudaGraphExec_t exec_elastic_p2o=nullptr, exec_elastic_o2p=nullptr;
 
     void initialize() {
         int head_dim_vec = config.head_dim / VECTOR_WIDTH;
@@ -325,9 +357,15 @@ private:
         CUDA_CHECK(cudaMalloc(&d_Q, bytes));
         CUDA_CHECK(cudaMalloc(&d_K, bytes));
         CUDA_CHECK(cudaMalloc(&d_V, bytes));
-        CUDA_CHECK(cudaMalloc(&d_O, bytes));
 
-        // Fill host vectors with synthetic but stable data
+        // Double-buffer allocation for race-free ping-pong execution
+        CUDA_CHECK(cudaMalloc(&d_O_prev, bytes));
+        CUDA_CHECK(cudaMalloc(&d_O_out, bytes));
+        // Initialize O_prev with zeros for reproducibility
+        CUDA_CHECK(cudaMemset(d_O_prev, 0, bytes));
+        CUDA_CHECK(cudaMemset(d_O_out, 0, bytes));
+
+        // Fill host vectors with synthetic but stable data (LCG for reproducibility)
         std::vector<float4> h(tensors_vec);
         for (size_t i=0;i<h.size();++i) {
             float base = (float)((i*1664525u + 1013904223u) & 0xFFFF) / 65535.0f; // LCG-ish
@@ -343,7 +381,8 @@ private:
         CUDA_CHECK(cudaMalloc(&d_mem_out, sz_vec * sizeof(float4)));
     }
 
-    void buildGraphForCompression(int comp_ratio, cudaGraph_t& g, cudaGraphExec_t& e) {
+    void buildSingleGraph(int comp_ratio, const float4* O_src, float4* O_dst,
+                          cudaGraph_t& g, cudaGraphExec_t& e) {
         cudaStream_t s; CUDA_CHECK(cudaStreamCreate(&s));
         CUDA_CHECK(cudaStreamBeginCapture(s, cudaStreamCaptureModeGlobal));
 
@@ -352,9 +391,9 @@ private:
         int blocks = (total_vec + OPTIMAL_BLOCK_SIZE - 1) / OPTIMAL_BLOCK_SIZE;
         float scale = 1.0f / sqrtf((float)config.head_dim);
 
-        elastic_attention_pascal_optimized<<<blocks, OPTIMAL_BLOCK_SIZE,
-            OPTIMAL_BLOCK_SIZE * sizeof(float), s>>>(
-            d_Q, d_K, d_V, d_O,
+        // No shared memory needed (removed unused dynamic smem allocation)
+        elastic_attention_pascal_optimized<<<blocks, OPTIMAL_BLOCK_SIZE, 0, s>>>(
+            d_Q, d_K, d_V, O_src, O_dst,
             config.seq_len, config.heads, head_dim_vec,
             comp_ratio, scale);
 
@@ -363,8 +402,20 @@ private:
         CUDA_CHECK(cudaStreamDestroy(s));
     }
 
-    // Time a single mean pass (averaged over inner_loops) using cudaEvents
-    float runPass(cudaGraphExec_t exec_opt, int comp_ratio_if_no_graph) {
+    void buildPingPongGraphs() {
+        // Baseline graphs (compress=1): G₀ (prev→out) and G₁ (out→prev)
+        buildSingleGraph(1, d_O_prev, d_O_out, graph_baseline_p2o, exec_baseline_p2o);
+        buildSingleGraph(1, d_O_out, d_O_prev, graph_baseline_o2p, exec_baseline_o2p);
+
+        // Elastic graphs (compress=config.compression_ratio): G₀ and G₁
+        buildSingleGraph(config.compression_ratio, d_O_prev, d_O_out,
+                         graph_elastic_p2o, exec_elastic_p2o);
+        buildSingleGraph(config.compression_ratio, d_O_out, d_O_prev,
+                         graph_elastic_o2p, exec_elastic_o2p);
+    }
+
+    // Time a single mean pass with ping-pong (averaged over inner_loops) using cudaEvents
+    float runPass(cudaGraphExec_t exec_p2o, cudaGraphExec_t exec_o2p, bool use_graphs) {
         cudaEvent_t start, stop; CUDA_CHECK(cudaEventCreate(&start)); CUDA_CHECK(cudaEventCreate(&stop));
 
         int head_dim_vec = config.head_dim / VECTOR_WIDTH;
@@ -374,25 +425,32 @@ private:
 
         CUDA_CHECK(cudaEventRecord(start, 0));
         for (int i = 0; i < config.inner_loops; ++i) {
-            if (config.enable_cuda_graphs && exec_opt) {
-                CUDA_CHECK(cudaGraphLaunch(exec_opt, 0));
+            if (config.enable_cuda_graphs && use_graphs) {
+                // Ping-pong: alternate between prev→out and out→prev
+                CUDA_CHECK(cudaGraphLaunch(exec_p2o, 0));
+                CUDA_CHECK(cudaGraphLaunch(exec_o2p, 0));
             } else {
-                elastic_attention_pascal_optimized<<<blocks, OPTIMAL_BLOCK_SIZE,
-                    OPTIMAL_BLOCK_SIZE * sizeof(float)>>>(
-                    d_Q, d_K, d_V, d_O,
+                // Fallback: manual launch with ping-pong (no shared mem)
+                elastic_attention_pascal_optimized<<<blocks, OPTIMAL_BLOCK_SIZE, 0>>>(
+                    d_Q, d_K, d_V, d_O_prev, d_O_out,
                     config.seq_len, config.heads, head_dim_vec,
-                    comp_ratio_if_no_graph, scale);
+                    config.compression_ratio, scale);
+                elastic_attention_pascal_optimized<<<blocks, OPTIMAL_BLOCK_SIZE, 0>>>(
+                    d_Q, d_K, d_V, d_O_out, d_O_prev,
+                    config.seq_len, config.heads, head_dim_vec,
+                    config.compression_ratio, scale);
             }
         }
         CUDA_CHECK(cudaEventRecord(stop, 0));
         CUDA_CHECK(cudaEventSynchronize(stop));
         float ms = 0.f; CUDA_CHECK(cudaEventElapsedTime(&ms, start, stop));
         cudaEventDestroy(start); cudaEventDestroy(stop);
-        return ms / (float)config.inner_loops;
+        // Each iteration does 2 passes (ping+pong), so normalize to per-pass time
+        return ms / (float)(config.inner_loops * 2);
     }
 
     float measureBaselineTokensPerSec() {
-        float ms = runPass(exec_baseline, /*comp=*/1);
+        float ms = runPass(exec_baseline_p2o, exec_baseline_o2p, true);
         return (ms > 0) ? (1000.0f / ms) : 0.0f;
     }
 
@@ -415,8 +473,8 @@ private:
         return (float)(bytes / (ms * 1e6)); // GB/s
     }
 
-    float timeSequential(cudaGraphExec_t exec_opt, int comp_ratio, int steps) {
-        // Measure steps sequentially to mimic decode dependency chain
+    float timeSequential(cudaGraphExec_t exec_p2o, cudaGraphExec_t exec_o2p, int steps) {
+        // Measure steps sequentially to mimic decode dependency chain with ping-pong
         cudaEvent_t start, stop; CUDA_CHECK(cudaEventCreate(&start)); CUDA_CHECK(cudaEventCreate(&stop));
 
         int head_dim_vec = config.head_dim / VECTOR_WIDTH;
@@ -426,14 +484,26 @@ private:
 
         CUDA_CHECK(cudaEventRecord(start, 0));
         for (int t = 0; t < steps; ++t) {
-            if (config.enable_cuda_graphs && exec_opt) {
-                CUDA_CHECK(cudaGraphLaunch(exec_opt, 0));
+            if (config.enable_cuda_graphs) {
+                // Ping-pong alternation for dependency chain
+                if (t % 2 == 0) {
+                    CUDA_CHECK(cudaGraphLaunch(exec_p2o, 0));
+                } else {
+                    CUDA_CHECK(cudaGraphLaunch(exec_o2p, 0));
+                }
             } else {
-                elastic_attention_pascal_optimized<<<blocks, OPTIMAL_BLOCK_SIZE,
-                    OPTIMAL_BLOCK_SIZE * sizeof(float)>>>(
-                    d_Q, d_K, d_V, d_O,
-                    config.seq_len, config.heads, head_dim_vec,
-                    comp_ratio, scale);
+                // Manual alternation (no shared mem)
+                if (t % 2 == 0) {
+                    elastic_attention_pascal_optimized<<<blocks, OPTIMAL_BLOCK_SIZE, 0>>>(
+                        d_Q, d_K, d_V, d_O_prev, d_O_out,
+                        config.seq_len, config.heads, head_dim_vec,
+                        config.compression_ratio, scale);
+                } else {
+                    elastic_attention_pascal_optimized<<<blocks, OPTIMAL_BLOCK_SIZE, 0>>>(
+                        d_Q, d_K, d_V, d_O_out, d_O_prev,
+                        config.seq_len, config.heads, head_dim_vec,
+                        config.compression_ratio, scale);
+                }
             }
         }
         CUDA_CHECK(cudaEventRecord(stop, 0));
@@ -464,7 +534,17 @@ int main(int argc, char** argv) {
         else if (strcmp(argv[i], "--inference")==0) cfg.measure_inference_cycle = true;
         else if (strncmp(argv[i], "--decode_tokens=", 16)==0) cfg.decode_tokens = std::max(1, atoi(argv[i]+16));
         else if (strcmp(argv[i], "--json")==0) cfg.enable_json_output = true;
+        else if (strcmp(argv[i], "--no-json")==0) cfg.enable_json_output = false;
         else if (strcmp(argv[i], "--help")==0) show_help = true;
+    }
+
+    // Guard rails: ensure valid configuration
+    cfg.compression_ratio = std::max(1, cfg.compression_ratio);
+    if (cfg.seq_len <= 0 || cfg.heads <= 0 || cfg.head_dim <= 0) {
+        printf("Error: Invalid configuration detected (seq_len=%d, heads=%d, head_dim=%d)\n",
+               cfg.seq_len, cfg.heads, cfg.head_dim);
+        printf("All parameters must be positive. Use --help for usage information.\n");
+        return 1;
     }
 
     if (show_help) {
