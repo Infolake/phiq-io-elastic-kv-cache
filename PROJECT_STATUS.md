@@ -96,7 +96,7 @@ Production Quality: ASCII-safe, Windows compatible - ACHIEVED ✅
 ### Linux/Ubuntu
 
 ```bash
-git clone https://github.com/phiq-io/elastic-kv-cache.git
+git clone https://github.com/Infolake/phiq-io-elastic-kv-cache.git
 cd elastic-kv-cache
 chmod +x build/scripts/build_linux.sh
 ./build/scripts/build_linux.sh
@@ -105,7 +105,7 @@ chmod +x build/scripts/build_linux.sh
 ### Windows
 
 ```batch
-git clone https://github.com/phiq-io/elastic-kv-cache.git
+git clone https://github.com/Infolake/phiq-io-elastic-kv-cache.git
 cd elastic-kv-cache
 build\scripts\build_windows.bat
 ```
@@ -180,9 +180,9 @@ python tests/quick_test.py
 
 **PHIQ IO GOE Nucleus**
 
-- **GitHub**: [phiq-io/elastic-kv-cache](https://github.com/phiq-io/elastic-kv-cache)
-- **Issues**: [GitHub Issues](https://github.com/phiq-io/elastic-kv-cache/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/phiq-io/elastic-kv-cache/discussions)
+- **GitHub**: [Infolake/phiq-io-elastic-kv-cache](https://github.com/Infolake/phiq-io-elastic-kv-cache)
+- **Issues**: [GitHub Issues](https://github.com/Infolake/phiq-io-elastic-kv-cache/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/Infolake/phiq-io-elastic-kv-cache/discussions)
 - **Enterprise**: enterprise@phiq.io
 
 ## License
@@ -195,3 +195,4 @@ Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for detai
 **Next Steps**: Open source release and community adoption
 
 _Made with ⚡ by PHIQ IO GOE Nucleus - Accelerating the future of Large Language Models_
+

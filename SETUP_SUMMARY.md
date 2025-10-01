@@ -182,7 +182,7 @@ README.md                  - Professional with logo and branding
 4. **Configure GitHub remote:**
 
    ```bash
-   git remote add origin https://github.com/Infolake/phiq-elastic-kv-cache.git
+   git remote add origin https://github.com/Infolake/phiq-io-elastic-kv-cache.git
    git push -u origin master
    ```
 
@@ -249,6 +249,7 @@ PHIQ.IO Quantum Technologies
 
 - **Website:** https://phiq.io
 - **Email:** support@phiq.io | camargo@phiq.io
-- **GitHub:** https://github.com/Infolake/phiq-elastic-kv-cache
+- **GitHub:** https://github.com/Infolake/phiq-io-elastic-kv-cache
 
 **© 2025 PHIQ.IO Quantum Technologies. All rights reserved.**
+

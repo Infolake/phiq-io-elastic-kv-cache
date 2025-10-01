@@ -9,7 +9,7 @@ PHIQ Elastic KV Cache delivers 2.0x speedup on real-world LLM inference!
 
 #AI #LLM #CUDA #GTC2025 #OpenSource
 
-GitHub: phiq-io/elastic-kv-cache
+GitHub: Infolake/phiq-io-elastic-kv-cache
 
 ---
 

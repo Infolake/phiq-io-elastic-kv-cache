@@ -10,7 +10,7 @@
 
 <br>[![CUDA](https://img.shields.io/badge/CUDA-11.8+-green.svg)](https://developer.nvidia.com/cuda-toolkit)
 
-<small>PHIQ.IO Quantum Technologies • GOE Nucleus Edition</small>[![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20Windows-lightgrey.svg)](https://github.com/phiq-io/elastic-kv-cache)
+<small>PHIQ.IO Quantum Technologies • GOE Nucleus Edition</small>[![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20Windows-lightgrey.svg)](https://github.com/Infolake/phiq-io-elastic-kv-cache)
 
 <br><br>
 
@@ -42,7 +42,7 @@
 
 ````bash
 
-**Camargo Constant:** Δ = φ + π = 4.759627 *(Golden Ratio + Pi: geometric harmony in entropy optimization)*git clone https://github.com/phiq-io/elastic-kv-cache.git
+**Camargo Constant:** Δ = φ + π = 4.759627 *(Golden Ratio + Pi: geometric harmony in entropy optimization)*git clone https://github.com/Infolake/phiq-io-elastic-kv-cache.git
 
 cd elastic-kv-cache
 
@@ -98,7 +98,7 @@ Elastic: 44.2 ms total → 1,449 tokens/sec
 
 ````bashSpeedup: 1.96x (Golden Ticket Achieved!)
 
-git clone https://github.com/phiq-io/elastic-kv-cache.git```
+git clone https://github.com/Infolake/phiq-io-elastic-kv-cache.git```
 
 cd elastic-kv-cache
 
@@ -116,7 +116,7 @@ chmod +x build.sh## 🏗️ Architecture
 
 ```cmd- **CUDA Graphs**: Reduced kernel launch overhead
 
-git clone https://github.com/phiq-io/elastic-kv-cache.git- **Roofline Analysis**: Memory bandwidth and compute efficiency scoring
+git clone https://github.com/Infolake/phiq-io-elastic-kv-cache.git- **Roofline Analysis**: Memory bandwidth and compute efficiency scoring
 
 cd elastic-kv-cache- **Inference Cycle**: Real-world sequential decode simulation
 
@@ -340,7 +340,7 @@ For complete options:
 
 ## Build Optionssudo apt install nvidia-cuda-toolkit cmake build-essential
 
-git clone https://github.com/phiq-io/elastic-kv-cache.git
+git clone https://github.com/Infolake/phiq-io-elastic-kv-cache.git
 
 ### Auto-detect GPU (Recommended)cd elastic-kv-cache
 
@@ -352,7 +352,7 @@ git clone https://github.com/phiq-io/elastic-kv-cache.git
 
 ```# Install CUDA Toolkit 11.8+ and Visual Studio 2019+
 
-git clone https://github.com/phiq-io/elastic-kv-cache.git
+git clone https://github.com/Infolake/phiq-io-elastic-kv-cache.git
 
 ### Specific Architecturecd elastic-kv-cache
 
@@ -452,7 +452,7 @@ phiq-elastic-kv-cache/
 
 │   ├── quick_test.py              # Quick validation  year={2025},
 
-│   ├── analyze_results.py         # Results analysis  url={https://github.com/phiq-io/elastic-kv-cache}
+│   ├── analyze_results.py         # Results analysis  url={https://github.com/Infolake/phiq-io-elastic-kv-cache}
 
 │   └── run_comprehensive_tests.sh # Full test suite}
 
@@ -480,9 +480,9 @@ phiq-elastic-kv-cache/
 
 - **Documentation**: [docs.phiq.io/elastic-kv](https://docs.phiq.io/elastic-kv)
 
-We welcome contributions from the community! Please see our [Contributing Guidelines](CONTRIBUTING.md) and [Professional Checklist](PROFESSIONAL_CHECKLIST.md) for details.- **Issues**: [GitHub Issues](https://github.com/phiq-io/elastic-kv-cache/issues)
+We welcome contributions from the community! Please see our [Contributing Guidelines](CONTRIBUTING.md) and [Professional Checklist](PROFESSIONAL_CHECKLIST.md) for details.- **Issues**: [GitHub Issues](https://github.com/Infolake/phiq-io-elastic-kv-cache/issues)
 
-- **Discussions**: [GitHub Discussions](https://github.com/phiq-io/elastic-kv-cache/discussions)
+- **Discussions**: [GitHub Discussions](https://github.com/Infolake/phiq-io-elastic-kv-cache/discussions)
 
 **Areas where we'd love help:**
 
@@ -509,7 +509,7 @@ If you use PHIQ Elastic KV Cache in your research, please cite:
   year = {2025},
   organization = {PHIQ.IO Quantum Technologies},
   note = {GOE Nucleus Edition},
-  url = {https://github.com/phiq-io/elastic-kv-cache}
+  url = {https://github.com/Infolake/phiq-io-elastic-kv-cache}
 }
 ````
 
@@ -527,8 +527,8 @@ This project is licensed under the **Apache License 2.0** - see the [LICENSE](LI
 
 - **Website:** [https://phiq.io](https://phiq.io)
 - **Email:** [support@phiq.io](mailto:support@phiq.io)
-- **Issues:** [GitHub Issues](https://github.com/phiq-io/elastic-kv-cache/issues)
-- **Discussions:** [GitHub Discussions](https://github.com/phiq-io/elastic-kv-cache/discussions)
+- **Issues:** [GitHub Issues](https://github.com/Infolake/phiq-io-elastic-kv-cache/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/Infolake/phiq-io-elastic-kv-cache/discussions)
 
 ---
 
@@ -542,3 +542,4 @@ This project is licensed under the **Apache License 2.0** - see the [LICENSE](LI
     © 2025 PHIQ.IO Quantum Technologies
   </sub>
 </div>
+
