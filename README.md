@@ -15,7 +15,7 @@
 [![Support](https://img.shields.io/badge/Support-phiq.io-blue.svg)](https://phiq.io)
 
 <small>
-PHIQ.IO Quantum Technologies • GOE Nucleus Edition  
+PHIQ.IO Quantum Technologies • GOE Nucleus Edition
 Developed by Dr. Guilherme de Camargo
 </small>
 
@@ -26,7 +26,7 @@ Developed by Dr. Guilherme de Camargo
 ## Camargo Constant
 
 > **Δ = φ + π = 4.759627**  
-> (Golden Ratio + Pi: geometric harmony in entropy optimization)
+> _(Golden Ratio + Pi: geometric harmony in entropy optimization)_
 
 ---
 
@@ -68,12 +68,12 @@ cd phiq-io-elastic-kv-cache
 
 ### Golden Ticket Validation (GTX 1070)
 
-| Metric               | Elastic         | Baseline | Efficiency   |
-|----------------------|----------------|----------|-------------|
-| Speedup vs Baseline  | 1.96x (Target 2.0x) |    —     | —           |
-| Coefficient of Var.  | 2.1% (≤1%)     |    —     | —           |
-| Bandwidth (GB/s)     | 189            |    —     | 73.8%       |
-| Tokens/sec           | 1,449          | 738      | —           |
+| Metric              | Elastic             | Baseline | Efficiency |
+| ------------------- | ------------------- | -------- | ---------- |
+| Speedup vs Baseline | 1.96x (Target 2.0x) | —        | —          |
+| Coefficient of Var. | 2.1% (≤1%)          | —        | —          |
+| Bandwidth (GB/s)    | 189                 | —        | 73.8%      |
+| Tokens/sec          | 1,449               | 738      | —          |
 
 ---
 
@@ -89,13 +89,13 @@ cd phiq-io-elastic-kv-cache
 
 ## GPU Compatibility
 
-| Architecture   | SM    | Example GPUs                   | Status         |
-|----------------|-------|-------------------------------|----------------|
-| Pascal         | 6.1   | GTX 1060/1070/1080, Tesla P100| ✅ Tested      |
-| Turing         | 7.5   | RTX 20xx, Tesla T4            | ✅ Supported   |
-| Ampere         | 8.0/8.6 | RTX 30xx, A100/A6000        | ✅ Optimized   |
-| Ada Lovelace   | 8.9   | RTX 4060–4090                 | ✅ Enhanced    |
-| Hopper         | 9.0   | H100                          | ✅ Future      |
+| Architecture | SM      | Example GPUs                   | Status       |
+| ------------ | ------- | ------------------------------ | ------------ |
+| Pascal       | 6.1     | GTX 1060/1070/1080, Tesla P100 | ✅ Tested    |
+| Turing       | 7.5     | RTX 20xx, Tesla T4             | ✅ Supported |
+| Ampere       | 8.0/8.6 | RTX 30xx, A100/A6000           | ✅ Optimized |
+| Ada Lovelace | 8.9     | RTX 4060–4090                  | ✅ Enhanced  |
+| Hopper       | 9.0     | H100                           | ✅ Future    |
 
 ---
 
@@ -132,7 +132,7 @@ cd phiq-io-elastic-kv-cache
 
 ## 🏢 Commercial Support
 
-PHIQ.IO Quantum Technologies offers enterprise support, custom optimization & integration.  
+PHIQ.IO Quantum Technologies offers enterprise support, custom optimization & integration.
 Contact: [enterprise@phiq.io](mailto:enterprise@phiq.io)
 
 ---
