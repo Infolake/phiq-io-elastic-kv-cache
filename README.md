@@ -1,44 +1,93 @@
 <div align="center">
 
-<img src="notebooks/content/logo-phi-q-icon-256.png" alt="PHIQ.IO Logo" width="140"/>
+<img src="notebooks/content/logo-phi-q-icon-256.png" alt="PHIQ.IO Logo" width="100"/>
 
-# ΦQ™ PHIQ.IO Elastic KV Cache
+## ΦQ™ PHIQ.IO™ Elastic KV Cache (Golden Ticket Edition)
 
-**High-Performance Elastic Key-Value Cache for Large Language Models**
+**Production-grade, self-contained CUDA microbenchmark for LLM inference acceleration**
 
-**Production-Grade LLM Inference Acceleration**
+Paired Baseline • CUDA Graphs • Vectorized `float4` loads • Inference-cycle timing • Roofline metrics
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![CUDA](https://img.shields.io/badge/CUDA-11.8+-green.svg)](https://developer.nvidia.com/cuda-toolkit)
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20Windows-lightgrey.svg)](https://github.com/Infolake/phiq-io-elastic-kv-cache)
-[![GPU](https://img.shields.io/badge/GPU-Pascal~Hopper-orange.svg)](#gpu-compatibility)
+[![GPU](https://img.shields.io/badge/GPU-Pascal~Hopper-orange.svg)](#compatibility)
 [![Support](https://img.shields.io/badge/Support-phiq.io-blue.svg)](https://phiq.io)
 
-<small>
-PHIQ.IO Quantum Technologies • GOE Nucleus Edition
-Developed by Dr. Guilherme de Camargo
-</small>
+**Brand:** PHIQ IO GOE Nucleus | **Author:** Dr. Guilherme de Camargo
+**Contact:** [support@phiq.io](mailto:support@phiq.io) • [https://phiq.io](https://phiq.io)
 
 </div>
 
 ---
 
-## Camargo Constant
-
-> **Δ = φ + π = 4.759627** > _(Golden Ratio + Pi: geometric harmony in entropy optimization)_
+**Camargo Constant:** Δ = φ + π = 4.759627
 
 ---
 
-## 🚀 Quick Start
+## Overview
 
-### Requirements
+This project delivers a practical, auditable demonstration of **Elastic KV Cache** acceleration for Large Language Models (LLMs). It includes:
 
-- NVIDIA GPU with Compute Capability 6.1+ _(Pascal and above)_
-- CUDA 11.8 or higher
-- CMake 3.18+
-- C++17 compatible compiler
+* A **CUDA CLI** that runs a real elastic-KV microbenchmark with:
+  * Paired baseline (compression=1) vs elastic (e.g., 2×–8×).
+  * Inference-cycle measurement (sequential decode timing).
+  * Memory bandwidth and normalized roofline score.
+  * JSON outputs suitable for audits and comparisons.
+* A **self-contained Jupyter/Colab notebook** that:
+  * Writes and compiles the CUDA source locally (no repo clone required).
+  * Runs benchmark scenarios and aggregates JSON to a table.
+  * Optionally times a small **Transformers** model and an **optional GGUF** model.
 
-### Build & Run
+This structure is designed to be compelling for NVIDIA GTC "Golden Ticket" judging: clear rigor, reproducible metrics, and a real inference-cycle improvement story.
+
+---
+
+## Why Elastic KV
+
+During autoregressive decoding, attention cost grows with context length. **Elastic KV** compresses the KV cache periodically (e.g., every 2nd, 4th, or 8th step) while reusing cached outputs between anchors. This preserves most utility while reducing bandwidth pressure, often improving tokens/sec and end-to-end latency.
+
+---
+
+## What's Included
+
+```text
+.
+├─ src/
+│  └─ elastic_kv_cli.cu                          # CUDA microbenchmark (paired baseline + inference cycle)
+├─ notebooks/
+│  ├─ phiq-io-elastic-kv-cache_notebooks.ipynb  # Self-contained notebook (recommended entry point)
+│  └─ content/
+│     └─ logo-phi-q-icon-256.png                # Branding logo
+├─ build/
+│  └─ scripts/
+│     ├─ build_linux.sh                          # Linux build script
+│     └─ build_windows.bat                       # Windows build script
+├─ LICENSE
+└─ README.md
+```
+
+---
+
+## Quick Start
+
+### A) Colab
+
+1. Open the notebook `notebooks/phiq-io-elastic-kv-cache_notebooks.ipynb` in Colab.
+2. Runtime → **Change runtime type** → **GPU**.
+3. If you plan larger downloads or tests, enable **High-RAM**.
+4. Run the notebook top-to-bottom. It will:
+   * Write `elastic_kv_cli.cu`
+   * Compile it with `nvcc`
+   * Run two benchmark presets (long/short)
+   * Produce JSON artifacts and an aggregated table
+5. Optional sections:
+   * **Transformers mini baseline** (ON by default).
+   * **GGUF baseline** (OFF by default; enable via toggle at the top).
+
+### B) Local (Linux)
+
+Prereqs: CUDA 11.8+, `nvcc`, a CC 6.1+ NVIDIA GPU.
 
 ```bash
 git clone https://github.com/Infolake/phiq-io-elastic-kv-cache.git
