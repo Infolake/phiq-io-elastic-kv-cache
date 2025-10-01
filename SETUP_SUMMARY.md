@@ -245,6 +245,6 @@ PHIQ.IO Quantum Technologies
 
 - **Website:** https://phiq.io
 - **Email:** support@phiq.io | camargo@phiq.io
-- **Repository:** d:\INFOLAKE\0-phosforescent\elastic-kv-cache\cores-protected\PHIQ_IO_GOE_NUCLEUS\phiq-elastic-kv-cache
+- **GitHub:** https://github.com/Infolake/phiq-elastic-kv-cache
 
 **© 2025 PHIQ.IO Quantum Technologies. All rights reserved.**
