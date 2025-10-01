@@ -29,15 +29,15 @@ Paired Baseline • CUDA Graphs • Vectorized `float4` loads • Inference-cycl
 
 This project delivers a practical, auditable demonstration of **Elastic KV Cache** acceleration for Large Language Models (LLMs). It includes:
 
-* A **CUDA CLI** that runs a real elastic-KV microbenchmark with:
-  * Paired baseline (compression=1) vs elastic (e.g., 2×–8×).
-  * Inference-cycle measurement (sequential decode timing).
-  * Memory bandwidth and normalized roofline score.
-  * JSON outputs suitable for audits and comparisons.
-* A **self-contained Jupyter/Colab notebook** that:
-  * Writes and compiles the CUDA source locally (no repo clone required).
-  * Runs benchmark scenarios and aggregates JSON to a table.
-  * Optionally times a small **Transformers** model and an **optional GGUF** model.
+- A **CUDA CLI** that runs a real elastic-KV microbenchmark with:
+  - Paired baseline (compression=1) vs elastic (e.g., 2×–8×).
+  - Inference-cycle measurement (sequential decode timing).
+  - Memory bandwidth and normalized roofline score.
+  - JSON outputs suitable for audits and comparisons.
+- A **self-contained Jupyter/Colab notebook** that:
+  - Writes and compiles the CUDA source locally (no repo clone required).
+  - Runs benchmark scenarios and aggregates JSON to a table.
+  - Optionally times a small **Transformers** model and an **optional GGUF** model.
 
 This structure is designed to be compelling for NVIDIA GTC "Golden Ticket" judging: clear rigor, reproducible metrics, and a real inference-cycle improvement story.
 
@@ -67,6 +67,8 @@ During autoregressive decoding, attention cost grows with context length. **Elas
 └─ README.md
 ```
 
+> If you prefer not to track the notebook, you can generate it from a builder cell and commit the result.
+
 ---
 
 ## Quick Start
@@ -77,30 +79,49 @@ During autoregressive decoding, attention cost grows with context length. **Elas
 2. Runtime → **Change runtime type** → **GPU**.
 3. If you plan larger downloads or tests, enable **High-RAM**.
 4. Run the notebook top-to-bottom. It will:
-   * Write `elastic_kv_cli.cu`
-   * Compile it with `nvcc`
-   * Run two benchmark presets (long/short)
-   * Produce JSON artifacts and an aggregated table
+   - Write `elastic_kv_cli.cu`
+   - Compile it with `nvcc`
+   - Run two benchmark presets (long/short)
+   - Produce JSON artifacts and an aggregated table
 5. Optional sections:
-   * **Transformers mini baseline** (ON by default).
-   * **GGUF baseline** (OFF by default; enable via toggle at the top).
+   - **Transformers mini baseline** (ON by default).
+   - **GGUF baseline** (OFF by default; enable via toggle at the top).
 
 ### B) Local (Linux)
 
 Prereqs: CUDA 11.8+, `nvcc`, a CC 6.1+ NVIDIA GPU.
 
 ```bash
-git clone https://github.com/Infolake/phiq-io-elastic-kv-cache.git
-cd phiq-io-elastic-kv-cache
+# Compile
+nvcc -O3 -std=c++17 src/elastic_kv_cli.cu -o elastic_kv_cli \
+  -gencode arch=compute_61,code=sm_61 \
+  -gencode arch=compute_70,code=sm_70 \
+  -gencode arch=compute_75,code=sm_75 \
+  -gencode arch=compute_80,code=sm_80 \
+  -gencode arch=compute_86,code=sm_86 \
+  -gencode arch=compute_89,code=sm_89 \
+  -gencode arch=compute_90,code=sm_90
 
-# Linux/macOS
-./build/scripts/build_linux.sh
+# Run: long context
+./elastic_kv_cli --seq=4096 --heads=32 --dim=128 --compress=4 \
+  --reps=50 --warmup=20 --inner_loops=64 --json > results_4096.json
 
-# Windows
+# Run: short context
+./elastic_kv_cli --seq=1024 --heads=16 --dim=64 --compress=2 \
+  --reps=50 --warmup=20 --inner_loops=64 --json > results_1024.json
+```
+
+### C) Local (Windows)
+
+```batch
+# Use build script (recommended)
 build\scripts\build_windows.bat
 
-# Quick benchmark
-./build/elastic_kv_cli --seq=1024 --compress=2 --json
+# Or compile directly with nvcc
+nvcc -O3 -std=c++17 src\elastic_kv_cli.cu -o elastic_kv_cli.exe -arch=sm_61
+
+# Run benchmark
+elastic_kv_cli.exe --seq=1024 --compress=2 --json
 ```
 
 ---
