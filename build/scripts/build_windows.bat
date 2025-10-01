@@ -15,12 +15,28 @@ if %ERRORLEVEL% NEQ 0 (
     exit /b 1
 )
 
-rem Check for Visual Studio
-if not exist "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat" (
-    if not exist "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build\vcvars64.bat" (
-        echo Error: Visual Studio 2019 not found.
-        exit /b 1
+rem Check for Visual Studio (supports 2019, 2022)
+set "VCVARS_FOUND="
+for %%V in (2022 2019) do (
+    for %%E in (Enterprise Professional Community) do (
+        if exist "C:\Program Files\Microsoft Visual Studio\%%V\%%E\VC\Auxiliary\Build\vcvars64.bat" (
+            set "VCVARS_PATH=C:\Program Files\Microsoft Visual Studio\%%V\%%E\VC\Auxiliary\Build\vcvars64.bat"
+            set "VCVARS_FOUND=1"
+            goto :vcvars_found
+        )
+        if exist "C:\Program Files (x86)\Microsoft Visual Studio\%%V\%%E\VC\Auxiliary\Build\vcvars64.bat" (
+            set "VCVARS_PATH=C:\Program Files (x86)\Microsoft Visual Studio\%%V\%%E\VC\Auxiliary\Build\vcvars64.bat"
+            set "VCVARS_FOUND=1"
+            goto :vcvars_found
+        )
     )
+)
+
+:vcvars_found
+if not defined VCVARS_FOUND (
+    echo Error: Visual Studio 2019 or 2022 not found.
+    echo Please install Visual Studio with C++ development tools.
+    exit /b 1
 )
 
 rem Set environment variables
@@ -34,11 +50,8 @@ echo Output Directory: %OUTPUT_DIR%
 echo.
 
 rem Set up Visual Studio environment
-echo Setting up Visual Studio 2019 environment...
-call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat" 2>nul
-if %ERRORLEVEL% NEQ 0 (
-    call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build\vcvars64.bat"
-)
+echo Setting up Visual Studio environment...
+call "%VCVARS_PATH%"
 
 rem Create build directory
 if not exist %OUTPUT_DIR% mkdir %OUTPUT_DIR%
