@@ -43,7 +43,12 @@ Developed by Dr. Guilherme de Camargo
 ```bash
 git clone https://github.com/Infolake/phiq-io-elastic-kv-cache.git
 cd phiq-io-elastic-kv-cache
-./build.sh
+
+# Linux/macOS
+./build/scripts/build_linux.sh
+
+# Windows
+build\scripts\build_windows.bat
 
 # Quick benchmark
 ./build/elastic_kv_cli --seq=1024 --compress=2 --json
