@@ -15,7 +15,7 @@ Paired Baseline • CUDA Graphs • Vectorized `float4` loads • Inference-cycl
 [![Support](https://img.shields.io/badge/Support-phiq.io-blue.svg)](https://phiq.io)
 
 **Brand:** PHIQ IO GOE Nucleus | **Author:** Dr. Guilherme de Camargo
-**Contact:** [support@phiq.io](mailto:support@phiq.io) • [https://phiq.io](https://phiq.io)
+**Contact:** [camargo@phiq.io](mailto:camargo@phiq.io) • [https://phiq.io](https://phiq.io)
 
 </div>
 
