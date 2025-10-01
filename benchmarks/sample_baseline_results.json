@@ -1,0 +1,30 @@
+{
+  "benchmark_type": "elastic_kv_golden_ticket_en",
+  "brand": "PHIQ IO GOE Nucleus",
+  "build": { "cuda_graphs": true, "inner_loops": 32, "truncate_percent": 0 },
+  "gpu": {
+    "name": "NVIDIA GeForce GTX 1070",
+    "sm": "6.1",
+    "theoretical_bw_gbs": 256.0
+  },
+  "configuration": {
+    "seq_len": 1024,
+    "heads": 16,
+    "head_dim": 64,
+    "compression": 2,
+    "reps": 50,
+    "warmup": 20
+  },
+  "results": {
+    "attention_time_ms": 0.05932,
+    "attention_time_std": 0.005791,
+    "coefficient_of_variation": 0.097618,
+    "tokens_per_sec": 16857.631,
+    "baseline_tokens_per_sec": 9876.738,
+    "speedup_vs_baseline": 1.707,
+    "memory_bandwidth_gbs": 188.66,
+    "memory_efficiency_percent": 73.7,
+    "roofline_score": 1.0
+  },
+  "inference_cycle": null
+}

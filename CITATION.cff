@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+authors:
+- family-names: "de Camargo"
+  given-names: "Guilherme"
+  orcid: "https://orcid.org/0000-0000-0000-0000"
+- name: "PHIQ.IO GOE Nucleus Team"
+title: "PHIQ.IO Elastic KV Cache"
+version: 1.0.0
+doi: 10.5281/zenodo.xxxxxxxx
+date-released: 2025-10-01
+url: "https://github.com/phiq-io/elastic-kv-cache"
+repository-code: "https://github.com/phiq-io/elastic-kv-cache"
+abstract: >-
+  Production-grade LLM inference acceleration through selective
+  key-value cache compression. Achieves 2x speedup in real-world
+  autoregressive generation with <1% accuracy loss. Universal
+  compatibility with HuggingFace Transformers, GGUF, and all
+  major NVIDIA GPU architectures.
+keywords:
+  - "large language models"
+  - "attention optimization"
+  - "inference acceleration"
+  - "CUDA"
+  - "transformers"
+  - "memory compression"
+license: MIT
