@@ -9,6 +9,7 @@ This directory contains reference benchmark results for audit and reproducibilit
 ### Standard Configurations
 
 1. **Small Workload (GTX 1070 / T4 baseline)**
+
    - `seq_len=1024, heads=16, head_dim=64, compress=2`
    - Target: 200 reps, 20 warmup, inner_loops=64, truncate=5%
 
@@ -19,6 +20,7 @@ This directory contains reference benchmark results for audit and reproducibilit
 ### Measurement Protocol
 
 All benchmarks use:
+
 - **Double-buffer ping-pong**: Race-free execution with O_prev → O_out alternation
 - **CUDA Graphs**: Enabled for minimal launch overhead
 - **Trimmed mean**: 5% truncation to remove thermal outliers
@@ -32,6 +34,7 @@ All benchmarks use:
 ```
 
 Examples:
+
 - `gtx1070_1024x16x64_compress2_20251001.json`
 - `a100_4096x32x128_compress4_20251001.json`
 
@@ -80,5 +83,5 @@ jq '.results.speedup_vs_baseline' results/*.json
 
 ---
 
-**Contact**: support@phiq.io | https://phiq.io  
+**Contact**: support@phiq.io | https://phiq.io
 **Camargo Constant**: Δ = φ + π = 4.759627

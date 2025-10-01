@@ -1,0 +1,244 @@
+# ============================================================================
+#  ΦQ™ PHIQ.IO Elastic KV Cache - Git Ignore Configuration
+#  Professional .gitignore for production-ready repository
+# ============================================================================
+
+# ============================================================================
+# Python
+# ============================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# pytest
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+
+# ============================================================================
+# C/C++/CUDA
+# ============================================================================
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+*.ko
+*.elf
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# CUDA specific
+*.ptx
+*.cubin
+*.fatbin
+*.compute_*
+*.sm_*
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+!CMakeLists.txt
+
+# Build directories
+build/
+build-*/
+out/
+bin/
+obj/
+
+# ============================================================================
+# IDEs and Editors
+# ============================================================================
+# VSCode
+.vscode/
+*.code-workspace
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.vcxproj
+*.vcxproj.filters
+
+# JetBrains IDEs (PyCharm, CLion, etc.)
+.idea/
+*.iml
+*.iws
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+\#*\#
+.\#*
+
+# ============================================================================
+# OS specific
+# ============================================================================
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# ============================================================================
+# Project specific
+# ============================================================================
+# Temporary test files
+test_*.json
+*_test_*.json
+benchmark_*.json
+stress_*.json
+*_temp.json
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# Backup files
+*.bak
+*.backup
+*.orig
+*~
+*.swp
+
+# Compiled CUDA/C++ binaries (keep source, ignore binaries)
+elastic_kv_cli
+elastic_kv_cli.exe
+goenucleus
+goenucleus.exe
+*.o
+*.so
+
+# Model files (too large for Git)
+*.bin
+*.gguf
+*.pt
+*.pth
+*.safetensors
+
+# Data files (should be downloaded separately)
+data/models/
+data/checkpoints/
+*.hdf5
+*.h5
+
+# Results that are too large or temporary
+results/temp/
+results/scratch/
+results/*.csv
+results/*.xlsx
+
+# Social media content (temporary)
+social_media_content.txt
+
+# Personal notes
+NOTES.md
+TODO_PERSONAL.md
+*_personal.md
+
+# Secrets and credentials (NEVER commit these!)
+.env
+.env.local
+*.key
+*.pem
+*credentials*
+*secrets*
+config/local.yaml
+
+# ============================================================================
+# Keep these directories with README placeholders
+# ============================================================================
+!results/README.md
+!benchmarks/README.md
+!notebooks/README.md
+!docs/README.md
+!tests/README.md
