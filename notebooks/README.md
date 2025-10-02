@@ -1,22 +1,38 @@
-# ΦQ™ PHIQ.IO Elastic KV Cache - Notebooks
+<div align="center">
 
-**Production-grade Jupyter notebooks for demonstration and benchmarking**
+<img src="https://raw.githubusercontent.com/Infolake/phiq-io-elastic-kv-cache/master/notebooks/content/logo-phi-q-icon-256.png" alt="PHIQ.IO Logo" width="100"/>
+
+# ΦQ™ PHIQ.IO Elastic KV Cache
+
+**Production-grade CUDA kernel for LLM inference acceleration**
+
+Race-free double-buffer • Ping-pong CUDA Graphs • Multi-GPU support • Vectorized memory access
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Infolake/phiq-io-elastic-kv-cache/blob/master/notebooks/phiq-io-elastic-kv-cache_notebooks.ipynb)
+
+[GitHub Repository](https://github.com/Infolake/phiq-io-elastic-kv-cache) • [Documentation](../README.md) • [Usage Guide](../USAGE_GUIDE.md)
+
+</div>
 
 ---
 
-## 📚 Available Notebooks
+## Notebooks
 
-### 🎯 **PHIQ_Elastic_KV_GTC_Autocontained.ipynb** (RECOMMENDED)
+This folder contains production-ready Jupyter notebooks for demonstration and benchmarking.
+
+### Available Notebooks
+
+### **phiq-io-elastic-kv-cache_notebooks.ipynb** (RECOMMENDED)
 
 **Self-contained notebook for GTC 2025 submission and live demos**
 
-- ✅ **Fully portable** - Embeds CUDA source code (no repo clone needed)
-- ✅ **Multi-architecture** - Compiles for Pascal (SM 6.1) through Hopper (SM 9.0)
-- ✅ **Golden Ticket benchmarks** - 4096×32×128 and 1024×16×64 configs
-- ✅ **Production kernel** - Race-free double-buffer + ping-pong CUDA Graphs
-- ✅ **Optional baselines** - Transformers (ON) and GGUF (OFF) for comparison
-- ✅ **Audit-ready output** - JSON artifacts with full metrics
-- ✅ **Social media generator** - Twitter/X and LinkedIn posts ready
+- **Fully portable** - Embeds CUDA source code (no repo clone needed)
+- **Multi-architecture** - Compiles for Pascal (SM 6.1) through Hopper (SM 9.0)
+- **Golden Ticket benchmarks** - 4096×32×128 and 1024×16×64 configs
+- **Production kernel** - Race-free double-buffer + ping-pong CUDA Graphs
+- **Optional baselines** - Transformers (ON) and GGUF (OFF) for comparison
+- **Audit-ready output** - JSON artifacts with full metrics
+- **Social media generator** - Twitter/X and LinkedIn posts ready
 
 **Use Cases:**
 
@@ -36,19 +52,7 @@
 
 ---
 
-### 📊 **phiq-io-elastic-kv-cache_notebooks_PH.ipynb** (INTERNAL)
-
-**Development notebook with placeholder logos (for private repo testing)**
-
-- Same content as GTC notebook
-- Uses placeholder URLs while repo is private
-- Will be removed after repo goes public
-
-**Status:** ⚠️ Temporary - delete after repo goes public
-
----
-
-## 🚀 Quick Start
+## Quick Start
 
 ### For GTC Judges / First-time Users:
 
@@ -74,12 +78,12 @@ git clone https://github.com/Infolake/phiq-io-elastic-kv-cache.git
 cd phiq-io-elastic-kv-cache
 
 # Open with Jupyter
-jupyter notebook notebooks/PHIQ_Elastic_KV_GTC_Autocontained.ipynb
+jupyter notebook notebooks/phiq-io-elastic-kv-cache_notebooks.ipynb
 ```
 
 ---
 
-## 📋 Notebook Contents
+## Notebook Contents
 
 All production notebooks include:
 
@@ -135,27 +139,27 @@ All production notebooks include:
 
 ---
 
-## 🎯 Golden Ticket Criteria
+## Golden Ticket Criteria
 
 Notebooks automatically validate against these thresholds:
 
 | Metric                       | Target | Golden Ticket |
 | ---------------------------- | ------ | ------------- |
-| **Speedup vs Baseline**      | ≥1.95x | ✅            |
-| **Coefficient of Variation** | ≤0.05  | ✅            |
-| **Memory Efficiency**        | ≥70%   | ✅            |
-| **Roofline Score**           | ≥0.80  | ⭐            |
+| **Speedup vs Baseline**      | ≥1.95x | PASS          |
+| **Coefficient of Variation** | ≤0.05  | PASS          |
+| **Memory Efficiency**        | ≥70%   | PASS          |
+| **Roofline Score**           | ≥0.80  | EXCELLENT     |
 
 **Current Achievement:**
 
-- ✅ 1.96x speedup
-- ✅ <5% CV (audit-ready)
-- ✅ 73.8% memory efficiency
-- ⭐ 0.82 roofline score
+- 1.96x speedup (PASS)
+- <5% CV (audit-ready)
+- 73.8% memory efficiency (PASS)
+- 0.82 roofline score (EXCELLENT)
 
 ---
 
-## 🔧 Customization
+## Customization
 
 ### Adjust Benchmark Configuration
 
@@ -186,7 +190,7 @@ Edit cell #13 (Run benchmarks):
 
 ---
 
-## 📊 Expected Outputs
+## Expected Outputs
 
 ### JSON Artifacts:
 
@@ -207,7 +211,7 @@ Edit cell #13 (Run benchmarks):
 
 ---
 
-## ⚠️ Troubleshooting
+## Troubleshooting
 
 ### "nvcc not found"
 
@@ -231,7 +235,7 @@ Edit cell #13 (Run benchmarks):
 
 ---
 
-## 📚 Additional Resources
+## Additional Resources
 
 - **Main README:** `../README.md`
 - **Usage Guide:** `../USAGE_GUIDE.md`
@@ -241,7 +245,7 @@ Edit cell #13 (Run benchmarks):
 
 ---
 
-## 🏆 Citation
+## Citation
 
 If you use these notebooks in your research, please cite:
 
@@ -258,8 +262,12 @@ If you use these notebooks in your research, please cite:
 ---
 
 <div align="center">
-<b>ΦQ™ Quantum Deductive Computing</b><br/>
+<img src="https://raw.githubusercontent.com/Infolake/phiq-io-elastic-kv-cache/master/notebooks/content/logo-phi-q-icon-256.png" alt="ΦQ" width="90"/>
+<br/>
+<small>
+ΦQ™ Quantum Deductive Computing<br/>
 <i>"Geometry doesn't lie; it just waits for us to listen."</i><br/>
 Dr. Guilherme de Camargo • Camargo Constant: Δ = φ + π = 4.759627<br/>
 © 2025 PHIQ.IO Quantum Technologies
+</small>
 </div>
