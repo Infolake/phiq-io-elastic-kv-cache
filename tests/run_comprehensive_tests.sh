@@ -38,9 +38,9 @@ echo "----------------------------------------"
     --json > "${OUTPUT_DIR}/test1_baseline.json"
 
 if [ $? -eq 0 ]; then
-    echo "✅ Baseline test completed"
+    echo "[OK] Baseline test completed"
 else
-    echo "❌ Baseline test failed"
+    echo "[ERROR] Baseline test failed"
     exit 1
 fi
 
@@ -59,9 +59,9 @@ echo "-------------------------------"
     --json > "${OUTPUT_DIR}/test2_elastic_2x.json"
 
 if [ $? -eq 0 ]; then
-    echo "✅ Elastic 2x test completed"
+    echo "[OK] Elastic 2x test completed"
 else
-    echo "❌ Elastic 2x test failed"
+    echo "[ERROR] Elastic 2x test failed"
 fi
 
 # Test 3: High Compression (4x)
@@ -79,9 +79,9 @@ echo "------------------------------"
     --json > "${OUTPUT_DIR}/test3_elastic_4x.json"
 
 if [ $? -eq 0 ]; then
-    echo "✅ High compression test completed"
+    echo "[OK] High compression test completed"
 else
-    echo "❌ High compression test failed"
+    echo "[ERROR] High compression test failed"
 fi
 
 # Test 4: Inference Cycle Simulation
@@ -101,9 +101,9 @@ echo "-----------------------------------"
     --json > "${OUTPUT_DIR}/test4_inference_cycle.json"
 
 if [ $? -eq 0 ]; then
-    echo "✅ Inference cycle test completed"
+    echo "[OK] Inference cycle test completed"
 else
-    echo "❌ Inference cycle test failed"
+    echo "[ERROR] Inference cycle test failed"
 fi
 
 # Test 5: Large Model Simulation
@@ -121,9 +121,9 @@ echo "-------------------------------"
     --json > "${OUTPUT_DIR}/test5_large_model.json"
 
 if [ $? -eq 0 ]; then
-    echo "✅ Large model test completed"
+    echo "[OK] Large model test completed"
 else
-    echo "❌ Large model test failed"
+    echo "[ERROR] Large model test failed"
 fi
 
 # Test 6: Precision Test (High iterations)
@@ -143,9 +143,9 @@ echo "-----------------------------------------"
     --json > "${OUTPUT_DIR}/test6_precision.json"
 
 if [ $? -eq 0 ]; then
-    echo "✅ Precision test completed"
+    echo "[OK] Precision test completed"
 else
-    echo "❌ Precision test failed"
+    echo "[ERROR] Precision test failed"
 fi
 
 # Combine results into comprehensive report
@@ -223,15 +223,15 @@ if [ -f "${OUTPUT_DIR}/test2_elastic_2x.json" ]; then
 
         # Golden ticket analysis
         if (( $(echo "$SPEEDUP >= 2.0" | bc -l) )); then
-            echo "  🏆 Golden Ticket Speedup: ACHIEVED"
+            echo "  [GOLDEN TICKET] Speedup: ACHIEVED"
         else
-            echo "  ⚠️  Golden Ticket Speedup: CLOSE (target: 2.0x)"
+            echo "  [NEAR TARGET] Speedup: CLOSE (target: 2.0x)"
         fi
 
         if (( $(echo "$CV <= 0.01" | bc -l) )); then
-            echo "  🏆 Golden Ticket Precision: ACHIEVED"
+            echo "  [GOLDEN TICKET] Precision: ACHIEVED"
         else
-            echo "  ⚠️  Golden Ticket Precision: GOOD (target: ≤1%)"
+            echo "  [GOOD] Precision: GOOD (target: ≤1%)"
         fi
     fi
 fi

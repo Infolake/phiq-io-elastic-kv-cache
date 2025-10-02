@@ -56,7 +56,7 @@ class ElasticKVExample:
                     # Print summary
                     if 'results' in data:
                         r = data['results']
-                        print(f"✅ SUCCESS ({elapsed:.1f}s)")
+                        print(f"[SUCCESS] ({elapsed:.1f}s)")
                         print(f"   Tokens/sec: {r.get('tokens_per_sec', 0):.0f}")
                         print(f"   Speedup: {r.get('speedup_vs_baseline', 0):.3f}x")
                         print(f"   CV: {r.get('coefficient_of_variation', 0)*100:.1f}%")
@@ -67,15 +67,15 @@ class ElasticKVExample:
                             print(f"   Inference Speedup: {ic.get('speedup_vs_baseline', 0):.3f}x")
 
                 except json.JSONDecodeError:
-                    print(f"❌ FAILED: Invalid JSON output")
+                    print(f"[FAILED] Invalid JSON output")
             else:
-                print(f"❌ FAILED: Return code {result.returncode}")
+                print(f"[FAILED] Return code {result.returncode}")
                 print(f"Error: {result.stderr}")
 
         except subprocess.TimeoutExpired:
-            print(f"❌ FAILED: Timeout after 120 seconds")
+            print(f"[FAILED] Timeout after 120 seconds")
         except FileNotFoundError:
-            print(f"❌ FAILED: Binary not found at {self.binary_path}")
+            print(f"[FAILED] Binary not found at {self.binary_path}")
             print("Please build the project first!")
 
 def main():
@@ -174,13 +174,13 @@ def main():
 
                 # Status determination
                 if speedup >= 2.0 and cv <= 1.0:
-                    status = "🏆 Golden"
+                    status = "[GOLDEN]"
                 elif speedup >= 1.8:
-                    status = "✅ Excellent"
+                    status = "[EXCELLENT]"
                 elif speedup >= 1.5:
-                    status = "👍 Good"
+                    status = "[GOOD]"
                 else:
-                    status = "⚠️ Fair"
+                    status = "[FAIR]"
 
                 name = result['name'][:29]
                 print(f"{name:<30} {speedup:<10.3f} {cv:<8.1f} {mem_eff:<10.1f} {status}")

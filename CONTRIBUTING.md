@@ -273,7 +273,7 @@ Contributors will be recognized in:
 - **Release notes** for significant contributions
 - **Documentation** for major features
 
-Thank you for contributing to PHIQ Elastic KV Cache! 🚀
+Thank you for contributing to PHIQ Elastic KV Cache!
 
 ---
 

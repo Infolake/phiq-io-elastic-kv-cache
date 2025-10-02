@@ -99,7 +99,7 @@ def main():
             valid, message = validate_result(result, test['min_speedup'], test['max_cv'])
 
             if valid:
-                print(f"✅ PASSED ({elapsed:.1f}s)")
+                print(f"[PASSED] ({elapsed:.1f}s)")
 
                 # Print key metrics
                 r = result['results']
@@ -115,10 +115,10 @@ def main():
 
                 passed_tests += 1
             else:
-                print(f"❌ FAILED ({elapsed:.1f}s)")
+                print(f"[FAILED] ({elapsed:.1f}s)")
                 print(f"   Reason: {message}")
         else:
-            print(f"❌ FAILED ({elapsed:.1f}s)")
+            print(f"[FAILED] ({elapsed:.1f}s)")
             print("   Reason: Benchmark execution failed")
 
     # Summary
@@ -128,11 +128,11 @@ def main():
     print(f"Tests Passed: {passed_tests}/{total_tests}")
 
     if passed_tests == total_tests:
-        print("Status: ALL TESTS PASSED ✅")
+        print("Status: [ALL TESTS PASSED]")
         print("The PHIQ Elastic KV Cache is working correctly!")
         sys.exit(0)
     else:
-        print("Status: SOME TESTS FAILED ❌")
+        print("Status: [SOME TESTS FAILED]")
         print("Please check the configuration and try again.")
         sys.exit(1)
 
