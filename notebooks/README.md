@@ -123,7 +123,7 @@ All production notebooks include:
 
 - Pandas DataFrame with all metrics
 - Golden Ticket validation analysis
-- Automatic verdict (✅ / ⭐ / ✓)
+- Automatic verdict (PASS/GOOD/EXCELLENT)
 
 ### 7. **Technical Explanation**
 
