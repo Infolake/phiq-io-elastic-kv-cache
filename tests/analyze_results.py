@@ -141,7 +141,7 @@ def print_detailed_report(summary: Dict):
     print()
 
     # Overall statistics
-    print("📊 OVERALL STATISTICS")
+    print("OVERALL STATISTICS")
     print("-" * 40)
     overall = summary['overall_analysis']
 
@@ -162,14 +162,14 @@ def print_detailed_report(summary: Dict):
     print()
 
     # Individual test results
-    print("🔬 INDIVIDUAL TEST RESULTS")
+    print("INDIVIDUAL TEST RESULTS")
     print("-" * 40)
 
     for test in summary['tests']:
         analysis = test['analysis']
         config = test['configuration']
 
-        print(f"\n📁 {test['filename']}")
+        print(f"\n[TEST] {test['filename']}")
         print(f"   Configuration: seq={config.get('seq_len', 'N/A')}, "
               f"heads={config.get('heads', 'N/A')}, "
               f"dim={config.get('head_dim', 'N/A')}, "
@@ -179,12 +179,12 @@ def print_detailed_report(summary: Dict):
             print(f"   Tokens/sec: {analysis['tokens_per_sec']:.1f}")
 
         if 'speedup_vs_baseline' in analysis:
-            speedup_icon = "🏆" if analysis['golden_ticket_speedup'] else "⚠️"
-            print(f"   Speedup: {analysis['speedup_vs_baseline']:.3f}x {speedup_icon}")
+            speedup_status = "[GOLDEN]" if analysis['golden_ticket_speedup'] else "[GOOD]"
+            print(f"   Speedup: {analysis['speedup_vs_baseline']:.3f}x {speedup_status}")
 
         if 'cv_percent' in analysis:
-            cv_icon = "🏆" if analysis['golden_ticket_precision'] else "⚠️"
-            print(f"   CV: {analysis['cv_percent']:.2f}% {cv_icon}")
+            cv_status = "[GOLDEN]" if analysis['golden_ticket_precision'] else "[GOOD]"
+            print(f"   CV: {analysis['cv_percent']:.2f}% {cv_status}")
 
         if 'performance_class' in analysis:
             print(f"   Classification: {analysis['performance_class']}")
@@ -194,19 +194,19 @@ def print_detailed_report(summary: Dict):
 
         # Golden ticket status
         if analysis.get('golden_ticket_overall', False):
-            print("   Status: 🏆 GOLDEN TICKET ACHIEVED")
+            print("   Status: [GOLDEN TICKET] ACHIEVED")
         elif analysis.get('real_world_golden_ticket', False):
-            print("   Status: 🏆 REAL-WORLD GOLDEN TICKET")
+            print("   Status: [GOLDEN TICKET] REAL-WORLD")
         elif analysis.get('speedup_vs_baseline', 0) >= 1.8:
-            print("   Status: ✅ EXCELLENT PERFORMANCE")
+            print("   Status: [EXCELLENT] PERFORMANCE")
         else:
-            print("   Status: ⚠️ NEEDS OPTIMIZATION")
+            print("   Status: [NEEDS OPTIMIZATION]")
 
     print()
 
     # Recommendations
     if summary['recommendations']:
-        print("💡 RECOMMENDATIONS")
+        print("RECOMMENDATIONS")
         print("-" * 40)
         for i, rec in enumerate(summary['recommendations'], 1):
             print(f"{i}. {rec}")
@@ -218,15 +218,15 @@ def print_detailed_report(summary: Dict):
     real_world_golden = sum(1 for test in summary['tests']
                            if test['analysis'].get('real_world_golden_ticket', False))
 
-    print("🏆 GOLDEN TICKET SUMMARY")
+    print("GOLDEN TICKET SUMMARY")
     print("-" * 40)
     print(f"Full Golden Tickets: {golden_tickets}/{summary['total_tests']}")
     print(f"Real-world Golden Tickets: {real_world_golden}/{summary['total_tests']}")
 
     if golden_tickets > 0 or real_world_golden > 0:
-        print("Status: PRODUCTION READY ✅")
+        print("Status: [PRODUCTION READY]")
     else:
-        print("Status: NEEDS OPTIMIZATION ⚠️")
+        print("Status: [NEEDS OPTIMIZATION]")
 
     print("="*80)
 
