@@ -230,7 +230,9 @@ Edit cell #13 (Run benchmarks):
 - **Main README:** `../README.md`
 - **Usage Guide:** `../USAGE_GUIDE.md`
 - **Scientific Paper:** `../SCIENTIFIC_PAPER.md`
-- **Source Code:** `../src/elastic_kv_cli.cu`
+- **Source Code:** 
+  - Production CLI: `../src/elastic_kv_cli.cu`
+  - Minimal Open-Source Library: `../src/elastic_kv_core.cu`
 - **Build Guide:** `../BUILD_GUIDE.md`
 
 ---

@@ -93,6 +93,27 @@ endif()
 include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${CUDAToolkit_INCLUDE_DIRS})
 
+# Shared library for open-source minimal implementation
+add_library(elastic_kv_core SHARED
+    src/elastic_kv_core.cu
+)
+
+# Set CUDA architectures for the library (optimized for Colab: T4, V100, A100)
+set_target_properties(elastic_kv_core PROPERTIES
+    CUDA_ARCHITECTURES "70;75;80"  # V100, T4, A100
+    CUDA_SEPARABLE_COMPILATION ON
+    CUDA_RESOLVE_DEVICE_SYMBOLS ON
+    OUTPUT_NAME "elastic_kv_core"
+    VERSION ${PROJECT_VERSION}
+    SOVERSION 1
+)
+
+# Link libraries for the shared library
+target_link_libraries(elastic_kv_core
+    CUDA::cudart
+    CUDA::cuda_driver
+)
+
 # Main executable
 add_executable(elastic_kv_cli
     src/elastic_kv_cli.cu
@@ -113,7 +134,7 @@ target_link_libraries(elastic_kv_cli
 )
 
 # Installation
-install(TARGETS elastic_kv_cli
+install(TARGETS elastic_kv_cli elastic_kv_core
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
